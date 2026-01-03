@@ -1,3 +1,3 @@
-# JB Script VM for RealityKit
+# RealityKit Virtual Machine
 
-This is an RQEngine Virtual Machine implementation for RealityKit.
+This is a JB Game Engine implementation for RealityKit powered by JB Script VM.
