@@ -8,16 +8,12 @@
 import RealityKit
 import simd
 
-public final class GameObject {
-    public var isEnabled: Bool = true {
-        didSet { entity.isEnabled = isEnabled }
+open class GameObject : Entity {
+    public var enabled: Bool = true {
+        didSet { self.isEnabled = enabled }
     }
-    public var name: String {
-        didSet { entity.name = name }
-    }
-
-    // RealityKit実体
-    internal let entity: Entity
+    
+    public var layer: Int = 0
 
     // Unity互換: RectTransform.sizeDelta 相当
     // UI用途の論理サイズ（ワールドスケールとは独立）
@@ -27,14 +23,18 @@ public final class GameObject {
     public lazy var transform: Transform = Transform(owner: self)
 
     public init(_ name: String) {
+        super.init()
+        // Keep GameObject's own name in sync with the internal entity for debugging/identification
         self.name = name
-        self.entity = Entity()
-        self.entity.name = name
+    }
+
+    required public init() {
+        super.init()
     }
 
     /// Unity互換: 親からこのオブジェクトを削除する
     public func Destroy() {
-        entity.removeFromParent()
+        self.removeFromParent()
     }
 
     /// Unity互換: 他のGameObjectのlocalSizeをコピーする

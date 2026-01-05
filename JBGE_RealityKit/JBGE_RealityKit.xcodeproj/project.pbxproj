@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E5947A212F0C0129004121B1 /* JBGE_RCP in Frameworks */ = {isa = PBXBuildFile; productRef = E5947A202F0C0129004121B1 /* JBGE_RCP */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E5620D1C2F0958FE00660F51 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5947A212F0C0129004121B1 /* JBGE_RCP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = JBGE_RealityKit;
 			packageProductDependencies = (
+				E5947A202F0C0129004121B1 /* JBGE_RCP */,
 			);
 			productName = JBGE_RealityKit;
 			productReference = E5620D0E2F0958FC00660F51 /* JBGE_RealityKit.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = E5620D052F0958FC00660F51;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E5947A1F2F0C0129004121B1 /* XCLocalSwiftPackageReference "JBGE_RCP" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E5620D0F2F0958FC00660F51 /* Products */;
 			projectDirPath = "";
@@ -615,6 +624,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		E5947A1F2F0C0129004121B1 /* XCLocalSwiftPackageReference "JBGE_RCP" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = JBGE_RCP;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E5947A202F0C0129004121B1 /* JBGE_RCP */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JBGE_RCP;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E5620D062F0958FC00660F51 /* Project object */;
 }

@@ -1,0 +1,66 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "Reality Composer Pro Version 2.0 (494.60.2)"
+    }
+    defaultPrim = "Scene"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Scene"
+{
+    reorder nameChildren = ["ScratchedMetallicPaint", "CubeTest", "DirectionalLight"]
+    float3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    def Cube "CubeTest" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        reorder nameChildren = ["DefaultMaterial", "Scratched_Metallic_Paint"]
+        rel material:binding = </Scene/ScratchedMetallicPaint> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        double size = 0.2
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:mtlx:surface
+            token outputs:realitykit:vertex
+            token outputs:surface.connect = </Scene/CubeTest/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+    }
+
+    def RealityKitComponent "DirectionalLight"
+    {
+        uniform token info:id = "RealityKit.DirectionalLight"
+
+        def RealityKitStruct "Shadow"
+        {
+        }
+    }
+
+    def "ScratchedMetallicPaint" (
+        active = true
+        prepend references = @Materials/ScratchedMetallicPaint.usdz@
+    )
+    {
+        color3f inputs:Basecolor_Tint = (0.49325702, 0.66982037, 0.43422058) (
+            colorSpace = "srgb_displayp3"
+        )
+    }
+}
+

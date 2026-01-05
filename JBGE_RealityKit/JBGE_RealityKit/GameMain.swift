@@ -16,10 +16,10 @@ open class GameMain {
     private var TimeToWaitBeforeSceneStart: Int = 2
     private var TimeToWaitCounter: Float = 0.0
 
-    open func start(scene: RealityKitScene, gameObject: GameObject) {
+    open func start(gameObject: GameObject) {
         if gameVM == nil {
-            let gameVM = RealityKitGameVM()
-            gameVM.GE = GameEngine(gameObject, scene: scene)
+            gameVM = RealityKitGameVM()
+            gameVM?.GE = GameEngine(gameObject)
         }
 
         // The very first script file that will be executed

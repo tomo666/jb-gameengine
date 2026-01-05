@@ -1,0 +1,23 @@
+{
+  "DAD14978-E2B0-40B2-B4F3-337A2A6838BA" : {
+    "objectMetadataList" : [
+      [
+        "DAD14978-E2B0-40B2-B4F3-337A2A6838BA",
+        "Scene"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "DAD14978-E2B0-40B2-B4F3-337A2A6838BA",
+        "Scene",
+        "CubeTest"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  }
+}

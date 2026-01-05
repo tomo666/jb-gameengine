@@ -7,13 +7,14 @@
 
 import Foundation
 import RealityKit
+internal import AppKit
 
 open class UIComponent {
 
     public var ID: Int = Int.random(in: 0..<Int.max)
     public unowned let GE: GameEngine
 
-    public let ThisObject: GameObject
+    public lazy var ThisObject: GameObject = GameObject("")
     public var Controller: GameObject?
     /// <summary>Sort order of this layer</summary>
     public var SortOrder: Int = 0
@@ -137,13 +138,19 @@ open class UIComponent {
         _ isControllerRequired: Bool = true,
         _ isCreatePlaneForThisObject: Bool = false
     ) {
-
         self.GE = GE
-        let name = objectName ?? String(describing: type(of: self))
+        let name = objectName ?? String("UIComponent")
         self.ID = Int.random(in: 0..<Int.max)
 
-        self.ThisObject = GameObject(name)
-
+        // Create an empty UIPlane and set it in the hierarchy, if told to do so
+        if isCreatePlaneForThisObject {
+            self.ThisObject = CreateUIPlane(name)
+        } else {
+            // Otherwise, just create an empty GameObject
+            self.ThisObject = GameObject(name)
+            self.ThisObject.layer = 5
+        }
+        
         // Phase 1 default: treat the UI space as a 2x2 plane centered at origin.
         // You can overwrite these from GameEngine later to match Unity camera/PPU behavior.
         self.ScaleWidth = 2.0
@@ -154,12 +161,16 @@ open class UIComponent {
         ScaleScreenHeight = ScaleHeight
 
         if isControllerRequired {
-            let controller = GameObject("\(name)_Controller")
+            // Create a container to encapsulate this object so we can control the pivots
+            let controller = GameObject("UIComponentController")
             self.Controller = controller
-            controller.transform.SetParent(parentObj?.ThisObject.transform ?? GE.UIRoot.transform)
+
+            // If we don't have any parent object specified, then this container will be directly the child of the UICamera
+            controller.transform.SetParent(parentObj == nil ? GE.UICamera.transform : parentObj?.ThisObject.transform)
             ThisObject.transform.SetParent(controller.transform)
         } else {
-            ThisObject.transform.SetParent(parentObj?.ThisObject.transform ?? GE.UIRoot.transform)
+            // If we don't have any parent object specified, then this container will be directly the child of the UICamera
+            ThisObject.transform.SetParent(parentObj?.ThisObject.transform)
         }
     }
 
@@ -433,10 +444,54 @@ open class UIComponent {
     }
 
     /// <summary>
-    /// Unity-compatible UI plane factory (Phase 1 stub).
+    /// Unity-compatible UI plane factory (RealityKit implementation).
     /// </summary>
-    open func CreateUIPlane(_ objectName: String) -> GameObject {
+    open func CreateUIPlane(
+        _ objectName: String,
+        bgColor: Vector4? = Vector4.one
+    ) -> GameObject {
+
         let go = GameObject(objectName)
+
+        // --- Create a rectangular plane mesh (Unity-style UI layer) ---
+        // Plane is centered at origin, facing +Z, size = ScaleWidth x ScaleHeight
+        let width = ScaleWidth
+        let height = ScaleHeight
+
+        let vertices: [SIMD3<Float>] = [
+            SIMD3(-width, -height, 0),
+            SIMD3( width, -height, 0),
+            SIMD3( width,  height, 0),
+            SIMD3(-width,  height, 0)
+        ]
+
+        let indices: [UInt32] = [
+            2, 1, 0,
+            3, 2, 0
+        ]
+
+        var meshDesc = MeshDescriptor()
+        meshDesc.positions = MeshBuffer(vertices)
+        meshDesc.primitives = .triangles(indices)
+
+        let mesh = try! MeshResource.generate(from: [meshDesc])
+        
+        // --- Material (simple unlit color, Unity placeholder equivalent) ---
+        var material = UnlitMaterial()
+        if let c = bgColor {
+            material.color = .init(tint: .init(red: CGFloat(c.x), green: CGFloat(c.y), blue: CGFloat(c.z), alpha: CGFloat(c.w)))
+        }
+
+        let model = ModelEntity(mesh: mesh, materials: [material])
+        model.name = "\(objectName)_Model"
+
+        // Attach model under GameObject’s entity
+        model.transform = .identity
+        go.addChild(model)
+
+        // Unity RectTransform equivalent defaults
+        go.localSize = Vector2(width * 2, height * 2)
+
         return go
     }
 }

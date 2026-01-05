@@ -17,9 +17,9 @@ public final class Transform {
 
     public func SetParent(_ parent: Transform?) {
         if let parent {
-            owner.entity.setParent(parent.owner.entity)
+            owner.setParent(parent.owner)
         } else {
-            owner.entity.setParent(nil)
+            owner.setParent(nil)
         }
     }
 
@@ -38,30 +38,30 @@ public final class Transform {
     
     public var localPosition: Vector3 {
         get {
-            let p = owner.entity.position
+            let p = owner.position
             return Vector3(p.x, p.y, p.z)
         }
         set {
-            owner.entity.position = newValue.simd
+            owner.position = newValue.simd
         }
     }
     
     public var localScale: Vector3 {
         get {
-            let s = owner.entity.scale
+            let s = owner.scale
             return Vector3(s.x, s.y, s.z)
         }
         set {
-            owner.entity.scale = newValue.simd
+            owner.scale = newValue.simd
         }
     }
     
     public var localRotation: simd_quatf {
         get {
-            owner.entity.orientation
+            owner.orientation
         }
         set {
-            owner.entity.orientation = newValue
+            owner.orientation = newValue
         }
     }
     
@@ -76,6 +76,6 @@ public final class Transform {
         let qy = simd_quatf(angle: radians.y, axis: SIMD3(0, 1, 0))
         let qz = simd_quatf(angle: radians.z, axis: SIMD3(0, 0, 1))
 
-        owner.entity.orientation = qz * qx * qy
+        owner.orientation = qz * qx * qy
     }
 }

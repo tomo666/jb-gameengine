@@ -7,31 +7,37 @@
 
 import SwiftUI
 import RealityKit
+import JBGE_RCP
 
 struct ContentView: View {
-
-    @State private var scene: RealityKitScene? = nil
+    private let rootAnchor = AnchorEntity(world: .zero)
+    private var gameMain = GameMain()
     private var gameObject: GameObject = GameObject("GameMain")
     
     var body: some View {
         RealityView { content in
-            // 初回のみ
-            if scene == nil {
-                let s = RealityKitScene()
-                scene = s
-                scene?.rootAnchor.addChild(gameObject.entity)
-
-                content.add(s.rootAnchor)
-
+            if let scene = try? await Entity(named: "Scene", in: JBGE_RCPBundle) {
+                content.add(scene)
+                content.add(gameObject)
+                content.add(rootAnchor)
+                rootAnchor.addChild(gameObject)
+                
                 // Unity: Start equivalent
-                s.gameMain.start(
-                    scene: s,
-                    gameObject: gameObject
-                )
+                gameMain.start(gameObject: gameObject)
+                
+                //let MainCamera = PerspectiveCamera()
+                //MainCamera.transform.translation = SIMD3(0, 0, 0.5)
+                //let WorldAnchor = AnchorEntity(world: .zero)
+                //let UIAnchor = AnchorEntity(world: .zero)
+
+                //MainCamera.addChild(WorldAnchor)
+                //MainCamera.addChild(UIAnchor)
+
+                //content.add(MainCamera)
             }
         } update: { _ in
             // Unity: Update equivalent
-            scene?.gameMain.Update()
+            gameMain.Update()
         }
     }
 }

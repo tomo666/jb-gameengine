@@ -5,20 +5,9 @@
 //  Created by Tomohiro Kadono on 2026/01/03.
 //
 
-// Pseudo-orthographic UI configuration struct
-struct UIPseudoOrthoConfig {
-    let uiDistance: Float
-    let referenceFOV: Float
-    let referenceHeight: Float
-    let uiScale: Float
-}
+import RealityKit
 
 open class GameEngine {
-    // RealityKit Specific: Root Scene to attach objects
-    public let RootScene: RealityKitScene
-    // RealityKit Specific: Root of the UI Component
-    public let UIRoot: GameObject = GameObject("UIRoot")
-    
     // For showing debug info (although this uses Unity's Canvas so currently is a placeholder)
     public var DebugDeviceInputCanvasObj: GameObject? = nil
     public var DebugPerformanceCanvasObj: GameObject? = nil
@@ -30,11 +19,11 @@ open class GameEngine {
     public var TopDownGameMain: Any? = nil
 
     // Manages the non-UI components
-    public var SceneManager: GameObject
+    public var SceneManager: GameObject? = nil
     // Manages the actors within the game
-    public var ActorManager: GameObject
+    public var ActorManager: GameObject? = nil
     // Manages the map within the game
-    public var MapManager: GameObject
+    public var MapManager: GameObject? = nil
     
     // Flag to determine if DEBUG info should be shown on screen or not
     public var IsShowDebugInfo: Bool = false
@@ -50,9 +39,9 @@ open class GameEngine {
     public var IsWaiting: Bool = false
 
     // Reference to the Main Camera object
-    public var MainCamera: Any? = nil
+    public var MainCamera: Camera = Camera("MainCamera")
     // Reference to the UICamera camera object
-    public var UICamera: Any? = nil
+    public var UICamera: Camera = Camera("UICamera")
     // Set to false if camera is in perspective mode, else true in orthographic mode
     public var IsUICameraOrthographic: Bool = false
     // If in perspective mode, the horizontal Field Of View Angle (in degrees)
@@ -61,13 +50,6 @@ open class GameEngine {
     public var PPUScaleUpUI: Float = 4.0
     // The Pixel Per Unit scale to lift up 2D Map scaling (Actually it's the ortho size so not affecting the actual object scales)
     public var PPUScaleUpWorld: Float = 5.0
-    // Centralized configuration for UI pseudo-orthographic projection
-    let uiConfig = UIPseudoOrthoConfig(
-        uiDistance: 169.0,
-        referenceFOV: 60.0,
-        referenceHeight: 1080.0,
-        uiScale: 1.0
-    )
 
     // Reference to the Main Camera (or virtual camera) object
     public var CinemachineVirtualCamera: Any? = nil
@@ -154,23 +136,15 @@ open class GameEngine {
     // The global pixel per unit applied to non-UI 2D graphic elements
     public var GlobalPixelPerUnit = 32
     
-    public init(_ gameObject: GameObject, scene: RealityKitScene) {
-        // RealityKit specific
-        self.RootScene = scene
-        
-        self.MainGameObject = gameObject
+    public init(_ gameObject: GameObject) {
+        MainGameObject = gameObject
 
-        SceneManager = GameObject("SceneManager")
-        ActorManager = GameObject("ActorManager")
-        MapManager   = GameObject("MapManager")
+        SceneManager = CreateGameObject("SceneManager")
+        ActorManager = CreateGameObject("ActorManager")
+        MapManager = CreateGameObject("MapManager")
 
-        ActorManager.transform.SetParent(SceneManager.transform)
-        MapManager.transform.SetParent(SceneManager.transform)
-
-        // RealityKit specific
-        scene.AddToScene(SceneManager)
-        scene.AddToScene(ActorManager)
-        scene.AddToScene(MapManager)
+        ActorManager?.transform.SetParent(SceneManager?.transform)
+        MapManager?.transform.SetParent(SceneManager?.transform)
         
         // We need to call this in order to check for Addressable asset existence
         //Addressables.InitializeAsync();
@@ -178,35 +152,42 @@ open class GameEngine {
         // Initialize UI
         InitializeUI()
     }
+    
+    // RealityKit Specific: Creates a new GameObject under the root anchor
+    public func CreateGameObject(_ name: String) -> GameObject {
+        let newGameObject = GameObject(name)
+        MainGameObject.addChild(newGameObject)
+        return newGameObject
+    }
 
     private func InitializeUI() {
-        // Create user input object
-        //UserInput = IDUserInput(self)
+        MainGameObject.addChild(MainCamera)
+        MainGameObject.addChild(UICamera)
         
-        // RealityKit-specific: Cameras are injected via RealityKitScene
-        UICamera = nil
-        MainCamera = nil
         CinemachineVirtualCamera = nil
         CinemachinePositionComposer = nil
 
         // If perspective mode, set camera properties
         if !IsUICameraOrthographic {
-            // TODO: configure perspective UI camera
+            // Perspective UI Camera
+            MainCamera.orthographic = false
+            MainCamera.fieldOfView = FOV
         } else {
-            // TODO: configure orthographic UI camera
+            // Orthographic UI Camera（pseudo）
+            UICamera.orthographic = true
         }
 
         // Create the one and utmost base layer that attaches to the UICamera
-        UIBaseLayer = UIComponent(self, "UIBaseLayer", nil, true, false)
+        UIBaseLayer = UIComponent(self, "UIBaseLayer", nil, true, true)
 
         // Reset and align base layer to center
         UIBaseLayer?.ResetTransform()
         UIBaseLayer?.SetPivot(0.5, 0.5)
-        UIBaseLayer?.SetScale(1.0, 1.0, 1.0)
+        UIBaseLayer?.SetScale(0.5, 0.5, 1.0)
         UIBaseLayer?.SetPivot(0.5, 0.5)
         UIBaseLayer?.SetRotation(0, 0, 0)
         UIBaseLayer?.SetPivot(0.5, 0.5)
-        UIBaseLayer?.SetPosition(0.5, 0.5, 0.0)
+        UIBaseLayer?.SetPosition(0.5, 0.5, -0.01)
         UIBaseLayer?.IsVisible = true
 
         // Create UI Layers
@@ -214,8 +195,11 @@ open class GameEngine {
         UIBackgroundLayer = UILayers[UIBackgroundLayerID]
         
         print("[GameEngine] Initialize UI Completed.")
+        print("===== ENTITY HIERARCHY DUMP =====")
+        dumpEntityTree(MainGameObject)
+        print("================================")
     }
-
+/*
     /// Unity-compatible ViewportToWorldPoint replacement
     /// - Parameters:
     ///   - x: Viewport X (0.0 - 1.0)
@@ -246,7 +230,7 @@ open class GameEngine {
             )
         }
     }
-    
+    */
     /// <summary>Creates a new Layer under the base layer</summary>
     /// <returns>ID is generated that can be used to identify the newly created object (if creation fails, returns -1)</returns>
     @discardableResult
@@ -398,5 +382,29 @@ open class GameEngine {
         textInput.SetText(strInputStates);
       }
     }*/
+
+    // Debug: Dumps the entire scene's hierarchy
+    public func dumpEntityTree(
+        _ entity: Entity,
+        indent: String = "",
+        isLast: Bool = true
+    ) {
+        let marker = isLast ? "└─" : "├─"
+        let name = entity.name.isEmpty ? "(unnamed)" : entity.name
+        let typeName = String(describing: type(of: entity))
+
+        print("\(indent)\(marker) \(name) [\(typeName)]")
+
+        let nextIndent = indent + (isLast ? "   " : "│  ")
+        let children = entity.children
+
+        for i in 0..<children.count {
+            dumpEntityTree(
+                children[i],
+                indent: nextIndent,
+                isLast: i == children.count - 1
+            )
+        }
+    }
 }
 
