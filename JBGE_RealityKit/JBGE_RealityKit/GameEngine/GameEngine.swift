@@ -197,46 +197,13 @@ open class GameEngine {
             UICamera.orthographic = true
         }
 
-        // Create the one and utmost base layer that attaches to the UICamera
+        // Create the one and utmost base layer
         UIBaseLayer = UIComponent(self, "UIBaseLayer", nil, true, true)
-
-        // Reset and align base layer to center
-        UIBaseLayer?.ResetTransform()
-
-        //UIBaseLayer?.SetPivot(0.5, 0.5)
-        //UIBaseLayer?.SetScale(0.5, 0.5, 1)
-        
-        //UIBaseLayer?.SetPivot(0.0, 0.0)
-        //UIBaseLayer?.SetScale(0.5, 0.5, 1)
-        
-        UIBaseLayer?.Transform(
-            baseScale: Vector3(0.5, 0.5, 1),
-            position: Vector3(0.5, 0.5, 0.0),
-            scale: Vector3(0.5, 0.5, 1.0),
-            rotation: Vector3(0.0, 0.0, 10.0),
-            positionPivot: Vector2(0.0, 0.0),
-            scalePivot: Vector2(0.0, 0.0),
-            rotationPivot: Vector2(0.0, 0.0)
-        )
-        
-        //UIBaseLayer?.SetPivot(0, 0)
-        //UIBaseLayer?.Translate(0.5, 0.5, 0.0)
-        
-        //UIBaseLayer?.SetPivot(0, 0)
-        //UIBaseLayer?.Translate(0.5, 0.5, 0.0, 1.0, 1.0)
-        
-        //UIBaseLayer?.SetPosition(0.25, 0.25, 0.0)
-        
-        // Order is: Translation, Rotation, Scale (RealiKit's order)
-        //UIBaseLayer?.Controller?.transform = RealityKit.Transform(scale: SIMD3<Float>(0.5, 0.5, 1))
-        
-        //UIBaseLayer?.Controller?.transform = RealityKit.Transform(scale: SIMD3<Float>(1, 1, 1), rotation: simd_quatf(ix: 0, iy: 0, iz: 0, r: 1), translation: SIMD3<Float>(2.31, 0.0, 0.0))
-        
-        /*UIBaseLayer?.SetPivot(1.0, 1.0)
-        UIBaseLayer?.SetRotation(0, 0, 45)*/
-        
-        //UIBaseLayer?.SetPivot(0.5, 0.5)
-        //UIBaseLayer?.SetPosition(0.5, 0.5, 1.0)
+        UIBaseLayer?.TransformAll(Vector3(1.0, 1.0, 1.0), Vector3(0.0, 0.0, 0.0), Vector3(0.5, 0.5, 1.0), Vector3(0, 0, 45),
+        Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(1.0, 1.0))
+        //UIBaseLayer?.TransformScale(Vector3(0.5, 0.5, 0.5), Vector2(1.0, 1.0));
+        //UIBaseLayer?.TransformPosition(Vector3(0.0, 0.0, 0.0), Vector2(0.0, 0.0));
+        //UIBaseLayer?.TransformRotation(Vector3(0.0, 0.0, 45.0), Vector2(1.0, 1.0));
         
         UIBaseLayer?.IsVisible = true
 
@@ -265,15 +232,9 @@ open class GameEngine {
 
         // We need to set the pivot and position of this layer to center of our UICamera
         layer.ResetTransform()
-        layer.SetPivot(0.5, 0.5)
-        layer.SetScale(1.0, 1.0, 1.0)
-        layer.SetPivot(0.5, 0.5)
-        layer.SetRotation(0, 0, 0)
-        layer.SetPivot(0.5, 0.5)
-        layer.SetPosition(0.5, 0.5, 0.0)
-
-        layer.LocalWidth *= 2
-        layer.LocalHeight *= 2
+        layer.TransformScale(Vector3(1.0, 1.0, 1.0), Vector2(0.5, 0.5))
+        layer.TransformRotation(Vector3(0, 0, 0), Vector2(0.5, 0.5))
+        layer.TransformPosition(Vector3(0.5, 0.5, 0.0), Vector2(0.5, 0.5))
 
         if let controller = layer.Controller {
             layer.ThisObject.SetSizeFrom(controller)

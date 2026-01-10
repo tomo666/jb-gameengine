@@ -80,8 +80,9 @@ struct ContentView: View {
                 )
             }
         }
+        .frame(minWidth: 1280, maxWidth: .infinity, minHeight: 800, maxHeight: .infinity)
         //.frame(minWidth: 960, maxWidth: .infinity, minHeight: 540, maxHeight: .infinity)
-        .frame(minWidth: 640, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
+        //.frame(minWidth: 640, maxWidth: .infinity, minHeight: 480, maxHeight: .infinity)
         //.frame(minWidth: 1024, maxWidth: .infinity, minHeight: 768, maxHeight: .infinity)
         //.frame(minWidth: 1280, maxWidth: .infinity, minHeight: 720, maxHeight: .infinity)
         //.frame(minWidth: 1920, maxWidth: .infinity, minHeight: 1080, maxHeight: .infinity)

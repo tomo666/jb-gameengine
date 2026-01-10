@@ -227,13 +227,5 @@ public final class Camera: GameObject {
             let vFovRad = 2 * atan(tan(hFovRad / 2) / aspect)
             fieldOfView = vFovRad * 180 / .pi
         }
-    }
-    
-    // UI helper for sizing
-    public func applyUISize(_ ui: UIComponent) {
-        ui.ScaleWidth  = orthoScreenWidth
-        ui.ScaleHeight = orthoScreenHeight
-    }
-    
-    
+    }    
 }
